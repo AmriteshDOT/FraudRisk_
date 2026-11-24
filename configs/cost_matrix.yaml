@@ -1,0 +1,23 @@
+# Layer 3 Local Bridge: Example-Dependent Bayes Minimum Risk Parameters (INR)
+rbi_liability:
+  reputational_overhead_inr: 250.0
+
+interventions:
+  rba_direct_cost_inr: 15.0
+  rba_legit_dropoff_rate: 0.015
+  rba_efficacy_ato: 0.85           # High efficacy against unauthorized takeover
+  rba_efficacy_app_scam: 0.25      # Low efficacy when victim enters own MPIN
+
+  hold_direct_cost_inr: 60.0
+  hold_legit_churn_rate: 0.04
+  hold_ops_cost_inr: 120.0
+  hold_efficacy_ato: 0.65
+  hold_efficacy_app_scam: 0.88     # High efficacy breaking psychological coercion
+
+  block_insult_cost_inr: 150.0
+  block_legit_churn_rate: 0.12
+  block_ops_cost_inr: 120.0
+
+dual_ensemble:
+  weight_feedback_model: 0.45
+  weight_delayed_model: 0.55

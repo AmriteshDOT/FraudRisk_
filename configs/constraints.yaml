@@ -1,0 +1,27 @@
+# Layer 2 Hard Feasibility Walls C(pi) <= 0
+latency:
+  p99_ceiling_ms: 50.0
+  hot_path_timeout_ms: 38.0        # Leaves 12ms margin for network/TLS/CBS
+  circuit_breaker_high_val_inr: 10000.0
+
+known_physics:
+  max_travel_speed_kmh: 900.0
+  min_impossible_travel_km: 50.0
+  upi_hard_cap_inr: 100000.0
+  app_coercion_hold_min_inr: 10000.0
+
+statistical_walls:
+  max_block_fpr: 0.003             # c_3: <= 0.3% false decline rate
+  analyst_daily_capacity_k: 500    # c_4: Tier-2 human queue ceiling
+  dual_ascent_step_size: 25.0
+  conformal_alpha: 0.05            # Split conformal OOD miscoverage ceiling
+  ips_exploration_eps: 0.02
+  ips_max_explore_amount_inr: 2000.0
+  ips_max_prob_explore: 0.80
+
+drift_and_rollout:
+  psi_warning_threshold: 0.10
+  psi_critical_retrain_threshold: 0.25
+  sprt_alpha: 0.01                 # Type-I error for canary kill-switch
+  sprt_beta: 0.05                  # Type-II error for canary kill-switch
+  shadow_mode_enabled: false

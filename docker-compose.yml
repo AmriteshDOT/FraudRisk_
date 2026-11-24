@@ -1,0 +1,60 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--maxmemory", "512mb", "--maxmemory-policy", "allkeys-lru"]
+
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v24.1.4
+    command:
+      - redpanda start
+      - --overprovisioned
+      - --smp 1
+      - --memory 512M
+      - --kafka-addr PLAINTEXT://0.0.0.0:9092
+      - --advertise-kafka-addr PLAINTEXT://redpanda:9092
+    ports:
+      - "9092:9092"
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: fraudshield
+      POSTGRES_PASSWORD: fraudshield_dev_password
+      POSTGRES_DB: audit_worm
+    ports:
+      - "5432:5432"
+
+  fraudshield-api:
+    build: .
+    depends_on:
+      - redis
+      - redpanda
+      - postgres
+    environment:
+      REDIS_URL: "redis://redis:6379/0"
+      KAFKA_BOOTSTRAP: "redpanda:9092"
+      POSTGRES_DSN: "postgresql://fraudshield:fraudshield_dev_password@postgres:5432/audit_worm"
+      ARTIFACT_DIR: "/app/artifacts"
+    volumes:
+      - ./artifacts:/app/artifacts
+    ports:
+      - "8000:8000"
+
+  fraudshield-workers:
+    build: .
+    command: ["python", "-m", "fraudshield.workers.kafka_consumers"]
+    depends_on:
+      - redis
+      - redpanda
+      - postgres
+    environment:
+      REDIS_URL: "redis://redis:6379/0"
+      KAFKA_BOOTSTRAP: "redpanda:9092"
+      POSTGRES_DSN: "postgresql://fraudshield:fraudshield_dev_password@postgres:5432/audit_worm"
+      ARTIFACT_DIR: "/app/artifacts"
+    volumes:
+      - ./artifacts:/app/artifacts
